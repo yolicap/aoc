@@ -5,24 +5,37 @@
 // takes in string steps and returns password
 int getPassword(char * steps[], int numSteps){
     int currValue = 50;
+    int prevValue = 0;
     int password = 0;
 
     // for each step, calc next dial value
     for (int i = 0; i < numSteps; i++){
-        int currOperation = 0;
+        int currOperation = 1;
         char * clicksStr = steps[i]+ 1;
 
         printf("%d : D%cC%s", i, steps[i][0], clicksStr);
 
-        if (steps[i][0] == 'L') currOperation = 100 - atoi(clicksStr);
-        else currOperation = atoi(clicksStr);
-
+        if (steps[i][0] == 'L') currOperation = -1;
+        currOperation *= atoi(clicksStr);
+        prevValue = currValue;
         currValue += currOperation;
+
+        printf("\n%d\n", currValue);
+        password += abs(currValue / 100);
         currValue = currValue % 100;
 
-        printf(" -> %d\n", currValue);
+        if (currOperation < 0 && prevValue != 0 && currValue <= 0)
+            password++;
+        
+        // if (currValue < 0){
+        //     currValue += 100; // adjust to true value
+        //     // do not count for prev 0. hacky solution :p
+        //     if (prevValue != 0) password ++; // must cross once, not counted in prev operation
+        // }
+        
+        if (currValue < 0) currValue += 100; // adjust to true value
 
-        if (currValue == 0) password++;
+        printf(" -> %2d, %d\n", currValue, password);
     }
 
     return password;
@@ -65,7 +78,6 @@ int main(){
         fclose(fptr);
     }
 
-    printf("first element : %s\n", steps[0]);
     int password = getPassword(steps, lineNum);
     printf("password: %d\n", password);
 
